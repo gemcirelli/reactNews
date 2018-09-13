@@ -130,12 +130,12 @@ class Table extends Component{
                 </li>
 
                 <li>
-                  <button 
+                  <Button 
                       onClick={()=>onDismiss(item.objectID)}
                       type="button"
                   >
                         Dismiss
-                  </button>
+                  </Button>
                 </li>
               </ul>
     
@@ -149,6 +149,24 @@ class Table extends Component{
   }
 }
 
+class Button extends Component{
+  render(){
+    const {
+      onClick,
+      className='',
+      children,
+    }= this.props;
 
+    return(
+        <button
+            onClick={onClick}
+            className={className}
+            type="button"
+        >
+        {children}
+        </button>
+    );
+  }
+}
 
 export default App;
