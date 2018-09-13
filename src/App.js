@@ -67,19 +67,22 @@ class App extends Component {
     const {list,searchTerm}= this.state;
     return(
      
-        <div className="App">
-          <Search
-            value={searchTerm}
-            onChange={this.onSearchChange}
-          >
-            Search
-          </Search>
-          <Table
-            list={list}
-            pattern={searchTerm}
-            onDismiss={this.onDismiss}
+        <div className="page">
+          <div className="interactions">
+              <Search
+                value={searchTerm}
+                onChange={this.onSearchChange}
+              >
+                Search
+              </Search>
+              <Table
+                list={list}
+                pattern={searchTerm}
+                onDismiss={this.onDismiss}
+              
+              />
+          </div>
           
-          />
 
         </div>
 
@@ -89,65 +92,115 @@ class App extends Component {
 
 }
 
-class Search extends Component{
-  render(){
-    const{value,onChange,children}=this.props;
-    return(
-        <form>
-          {children}
-          <input
-            type="text"
-            value={value}
-            onChange={onChange}
-          />
-        </form>
-    )
-  }
-}
+// class Search extends Component{
+//   render(){
+//     const{value,onChange,children}=this.props;
+//     return(
+//         <form>
+//           {children}
+//           <input
+//             type="text"
+//             value={value}
+//             onChange={onChange}
+//           />
+//         </form>
+//     )
+//   }
+// }
 
-class Table extends Component{
-  render(){
-    const{list,pattern, onDismiss}=this.props;
-    return(
-        <div>
-          {list.filter(isSearched(pattern)).map(item=>
+const Search=({value, onChange, children})=>
+ 
+      <form>
+        {children} <input
+        type="text"
+        value={value}
+        onChange={onChange}
+        />
+      </form>
+
+
+const Table=({list,pattern,onDismiss}) =>
+<div className="table">
+    {list.filter(isSearched(pattern)).map(item=>
+        
+      <div key={item.objectID} className="table-row">
+      
+        
+          <span className="largeColumn">
+              <a href={item.url}> {item.title} </a>
+          </span>
+          <span className="midColumn"> 
+            {item.author}
+          </span>
+          <span className="smallColumn">
+            {item.num_comments} 
+          </span>
+
+          <span className="smallColumn">
+          {item.points}
+          </span>
+
+          <span>
+            <Button 
+                onClick={()=>onDismiss(item.objectID)}
+                type="button"
+                className="button-inline"
+            >
+                  Dismiss
+            </Button>
+          </span>
+       
+
+      </div>
+    )}
+
+</div>
+
+
+
+// class Table extends Component{
+//   render(){
+//     const{list,pattern, onDismiss}=this.props;
+//     return(
+//         <div>
+//           {list.filter(isSearched(pattern)).map(item=>
               
-            <div key={item.objectID}>
+//             <div key={item.objectID}>
             
-              <ul>
-                <li>
-                    <a href={item.url}> {item.title} </a>
-                </li>
-                <li>
-                  {item.author}
-                </li>
-                <li>
-                  {item.num_comments} 
-                </li>
+//               <ul>
+//                 <li>
+//                     <a href={item.url}> {item.title} </a>
+//                 </li>
+//                 <li>
+//                   {item.author}
+//                 </li>
+//                 <li>
+//                   {item.num_comments} 
+//                 </li>
 
-                <li>
-                {item.points}
-                </li>
+//                 <li>
+//                 {item.points}
+//                 </li>
 
-                <li>
-                  <Button 
-                      onClick={()=>onDismiss(item.objectID)}
-                      type="button"
-                  >
-                        Dismiss
-                  </Button>
-                </li>
-              </ul>
+//                 <li>
+//                   <Button 
+//                       onClick={()=>onDismiss(item.objectID)}
+//                       type="button"
+//                   >
+//                         Dismiss
+//                   </Button>
+//                 </li>
+//               </ul>
     
-            </div>
-          )}
+//             </div>
+//           )}
 
-        </div>
+//         </div>
 
 
-    )
-  }
-}
+//     )
+//   }
+// }
 
 class Button extends Component{
   render(){
