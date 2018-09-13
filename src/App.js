@@ -6,24 +6,86 @@ import './App.css';
 
 
 
-const list=[{
+const list=[
+  {
     title:'React',
     url: 'https://facebook.github.io/react',
-    author:'Gabriel',
+    author:'Gabriele',
     num_comments: 3,
     points:4,
     objectID:0,
-},
+  },
+
+  {
+  title:'Reacto',
+  url: 'https://facebook.github.io/react',
+  author:'Eduardo',
+  num_comments: 3,
+  points:4,
+  objectID:1,
+  },
 ];
 class App extends Component {
+  constructor(props){
+    super(props);
+    this.state={
+      list,
+    };
+
+
+    this.onDismiss=this.onDismiss.bind(this);
+  }
+
+  onDismiss(id){
+
+
+    function isNotId(item){
+      return item.objectID !== id;
+
+    }
+    const updatedlist= this.state.list.filter(isNotId);
+
+    this.setState({list:updatedlist});
+  }
+
+ 
   render() {
-    const helloworld="Welcome to the Road to learn React " 
-    const author = "This is made by Gabriel Medina Cirelli"
-    return (
-      <div className="App">
-          <h2>{helloworld} </h2>
-          <h3>{author}</h3>
-      </div>
+    return(
+        <div className="App">
+          {this.state.list.map(item=>
+              <div key={item.objectID}>
+               
+                <ul>
+                  <li>
+                      <a href={item.url}> {item.title} </a>
+                  </li>
+                  <li>
+                     {item.author}
+                  </li>
+                  <li>
+                    {item.num_comments} 
+                  </li>
+
+                  <li>
+                  {item.points}
+                  </li>
+
+                  <li>
+                    <button 
+                        onClick={()=>this.onDismiss(item.objectID)}
+                        type="button"
+                    >
+                          Dismiss
+                    </button>
+                  </li>
+                </ul>
+                
+     
+              </div>
+          )}
+        </div>
+
+    
     );
   }
 }
