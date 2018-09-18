@@ -26,6 +26,7 @@ class App extends Component {
     this.state={
       result:null,
       searchTerm: DEFAULT_QUERY,
+      error:null,
     };
 
     this.setSearchTopStories=this.setSearchTopStories.bind(this);
@@ -45,7 +46,7 @@ class App extends Component {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`)
     .then(response => response.json())
     .then(result => this.setSearchTopStories(result))
-    .catch(error => error);
+    .catch(error => this.setState({error}));
 
   }
 
@@ -57,7 +58,21 @@ class App extends Component {
   }
 
   setSearchTopStories(result){
-    this.setState({result});
+    const {hits,page}= result;
+
+    const oldHits= page !==0
+    ? this.state.result.hits
+    :[];
+
+
+    const updatedHits=[
+      ...oldHits,
+      ...hits
+    ]
+    this.setState({
+      result : { hits:updatedHits, page}
+    
+    });
   }
 
   componentDidMount(){
@@ -89,9 +104,12 @@ class App extends Component {
 
  
   render() {
-    const {result,searchTerm}= this.state;
+    const {result,searchTerm,error}= this.state;
     const page= (result && result.page) || 0;
-    console.log(result);
+    console.log(error);
+    if(error){
+      return <p>Something went wrong</p>
+    }
     if (!result) {return null;}
     return(
      
@@ -104,9 +122,9 @@ class App extends Component {
               >
                 Search
               </Search>
-
-              { result &&
-              <Table
+          </div>
+              { error ?   <div className="interactions"> <p>Something went wrong</p></div>
+              :<Table
                 list={result.hits}
                 
                 onDismiss={this.onDismiss}
@@ -118,7 +136,7 @@ class App extends Component {
             <Button onClick={()=>this.fetchSearchTopStories(searchTerm,page +1)}>
             More
             </Button>
-          </div>
+          
           
 
         </div>
