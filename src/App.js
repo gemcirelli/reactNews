@@ -28,6 +28,7 @@ class App extends Component {
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
       error:null,
+      isLoading: false,
     };
 
     this.setSearchTopStories=this.setSearchTopStories.bind(this);
@@ -46,6 +47,7 @@ class App extends Component {
   //metodo de clase reusable
 
   fetchSearchTopStories(searchTerm,page=0){
+    this.setState({isLoading: true});
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`)
     .then(response => response.json())
     .then(result => this.setSearchTopStories(result))
@@ -84,7 +86,8 @@ class App extends Component {
      results: {
               ...results,
               [searchKey]: { hits: updatedHits, page }
-    }
+    },
+    isLoading:false
     
     });
   }
@@ -99,6 +102,10 @@ class App extends Component {
     
     this.fetchSearchTopStories(searchTerm);
    
+
+    if(this.input){
+      this.input.focus();
+    }
   }
 
   onDismiss(id){
@@ -133,7 +140,9 @@ class App extends Component {
     const {
       searchTerm,
       results,
-      searchKey,error
+      searchKey,
+      error,
+      isLoading
       } = this.state;
       const page = (
         results &&
@@ -157,6 +166,15 @@ class App extends Component {
      
         <div className="page">
           <div className="interactions">
+
+                { isLoading
+                  ? <Loading />
+                  : <p>Information fetched</p>
+              
+                }
+
+
+
               <Search
                 value={searchTerm}
                 onChange={this.onSearchChange}
@@ -188,21 +206,46 @@ class App extends Component {
 
 }
 
+const Loading=()=>
+      <div>Loading...</div>
 
 
-const Search=({value, onChange,onSubmit, children})=>
+
+class Search extends Component{
+
+  render(){
+    const{value, onChange,onSubmit, children}= this.props
+  
+
+        return(
+                <form  onSubmit={onSubmit}>
+                <input
+                type="text"
+                value={value}
+                onChange={onChange}
+                ref={(node)=>{this.input=node;}}
+                />
+
+                <button type="submit">
+                {children} 
+                </button>
+              </form>
+              );
+  }
+}
+// const Search=({value, onChange,onSubmit, children})=>
  
-      <form  onSubmit={onSubmit}>
-        <input
-        type="text"
-        value={value}
-        onChange={onChange}
-        />
+      // <form  onSubmit={onSubmit}>
+      //   <input
+      //   type="text"
+      //   value={value}
+      //   onChange={onChange}
+      //   />
 
-        <button type="submit">
-        {children} 
-        </button>
-      </form>
+      //   <button type="submit">
+      //   {children} 
+      //   </button>
+      // </form>
 
 
 const Table=({list,onDismiss}) =>
