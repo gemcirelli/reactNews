@@ -209,7 +209,7 @@ const Table=({list,onDismiss}) =>
 <div className="table">
     {list.map(item=>
         
-      <div key={item.objectID} className="table-row">
+      <div key={Math.random()}  className="table-row">
       
         
           <span className="largeColumn">
