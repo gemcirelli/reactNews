@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-
+import PropTypes from 'prop-types';
 
 const DEFAULT_QUERY= 'redux';
 
@@ -169,7 +169,7 @@ class App extends Component {
 
                 { isLoading
                   ? <Loading />
-                  : <p>Information fetched</p>
+                  : <p id="succesP">Information fetched</p>
               
                 }
 
@@ -183,7 +183,7 @@ class App extends Component {
                 Search
               </Search>
           </div>
-              { error ?   <div className="interactions"> <p>Something went wrong charging the data</p></div>
+              { error ?   <div className="interactions"> <p className="Perror">Something went wrong charging the data</p></div>
               :<Table
                   list={list}
                   onDismiss={this.onDismiss}
@@ -207,7 +207,7 @@ class App extends Component {
 }
 
 const Loading=()=>
-      <div>Loading...</div>
+<i className="fa fa-clock-o">Fetching Data</i>
 
 
 
@@ -224,9 +224,10 @@ class Search extends Component{
                 value={value}
                 onChange={onChange}
                 ref={(node)=>{this.input=node;}}
+                
                 />
 
-                <button type="submit">
+                <button type="submit" className="buttonSearch">
                 {children} 
                 </button>
               </form>
@@ -269,11 +270,11 @@ const Table=({list,onDismiss}) =>
           {item.points}
           </span>
 
-          <span>
+          <span className="deleteButton">
             <Button 
                 onClick={()=>onDismiss(item.objectID)}
                 type="button"
-                className="button-inline"
+                className="buttonDelete"
             >
                   Dismiss
             </Button>
@@ -305,5 +306,9 @@ class Button extends Component{
     );
   }
 }
-
+Button.propTypes = {
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
 export default App;
