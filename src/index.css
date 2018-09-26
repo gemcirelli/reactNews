@@ -37,3 +37,22 @@ button:hover {
 *:focus {
   outline: none;
 }
+
+
+.buttonDelete{
+  background-color:rgba(180, 50, 56, 0.815);
+  color:white;
+}
+
+.buttonSearch{
+  background-color: rgb(22, 161, 22);
+  color: white;
+}
+
+.fa{
+  color:green;
+}
+  
+  #succesP{
+    color:green;
+  }

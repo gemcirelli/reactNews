@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-
+import PropTypes from 'prop-types';
 
 const DEFAULT_QUERY= 'redux';
 
@@ -24,9 +24,11 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state={
-      result:null,
+      results: null,
+      searchKey: '',
       searchTerm: DEFAULT_QUERY,
       error:null,
+      isLoading: false,
     };
 
     this.setSearchTopStories=this.setSearchTopStories.bind(this);
@@ -38,11 +40,14 @@ class App extends Component {
     this.onSearchSubmit=this.onSearchSubmit.bind(this);
 
     this.fetchSearchTopStories= this.fetchSearchTopStories.bind(this);
+
+    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
   }
 
   //metodo de clase reusable
 
   fetchSearchTopStories(searchTerm,page=0){
+    this.setState({isLoading: true});
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`)
     .then(response => response.json())
     .then(result => this.setSearchTopStories(result))
@@ -53,16 +58,24 @@ class App extends Component {
 
   onSearchSubmit(event){
     const {searchTerm}= this.state;
+    this.setState({ searchKey: searchTerm });
     this.fetchSearchTopStories(searchTerm);
+
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm);
+    }
     event.preventDefault();
   }
 
   setSearchTopStories(result){
     const {hits,page}= result;
 
-    const oldHits= page !==0
-    ? this.state.result.hits
-    :[];
+    const { searchKey, results } = this.state;
+
+
+    const oldHits = results && results[searchKey]
+    ? results[searchKey].hits
+    : [];
 
 
     const updatedHits=[
@@ -70,31 +83,51 @@ class App extends Component {
       ...hits
     ]
     this.setState({
-      result : { hits:updatedHits, page}
+     results: {
+              ...results,
+              [searchKey]: { hits: updatedHits, page }
+    },
+    isLoading:false
     
     });
   }
 
+  needsToSearchTopStories(searchTerm) {
+    return !this.state.results[searchTerm];
+    }
+
   componentDidMount(){
     const {searchTerm}= this.state;
+    this.setState({ searchKey: searchTerm });
+    
     this.fetchSearchTopStories(searchTerm);
    
+
+    if(this.input){
+      this.input.focus();
+    }
   }
 
   onDismiss(id){
 
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+    // function isNotId(item){
+    //   return item.objectID !== id;
 
-    function isNotId(item){
-      return item.objectID !== id;
+    // }
 
+    const isNotId= item =>item.objectID !== id;
+
+    const updatedHits = hits.filter(isNotId);
+      this.setState({
+            results: {
+              ...results,
+              [searchKey]: { hits: updatedHits, page }
+            }
+            
+      });
     }
-    const updatedlist= this.state.result.hits.filter(isNotId);
-
-    this.setState({
-      result:{...this.state.result, hits:updatedlist}
-    
-    });
-  }
 
   onSearchChange(event){
 
@@ -104,17 +137,44 @@ class App extends Component {
 
  
   render() {
-    const {result,searchTerm,error}= this.state;
-    const page= (result && result.page) || 0;
-    console.log(error);
-    if(error){
-      return <p>Something went wrong</p>
-    }
-    if (!result) {return null;}
+    const {
+      searchTerm,
+      results,
+      searchKey,
+      error,
+      isLoading
+      } = this.state;
+      const page = (
+        results &&
+        results[searchKey] &&
+        results[searchKey].page
+        ) || 0;
+
+
+    const list = (
+          results &&
+          results[searchKey] &&
+          results[searchKey].hits
+    ) || [];
+
+      let llave= Math.random(); 
+    
+
+    
+    
     return(
      
         <div className="page">
           <div className="interactions">
+
+                { isLoading
+                  ? <Loading />
+                  : <p id="succesP">Information fetched</p>
+              
+                }
+
+
+
               <Search
                 value={searchTerm}
                 onChange={this.onSearchChange}
@@ -123,17 +183,16 @@ class App extends Component {
                 Search
               </Search>
           </div>
-              { error ?   <div className="interactions"> <p>Something went wrong</p></div>
+              { error ?   <div className="interactions"> <p className="Perror">Something went wrong charging the data</p></div>
               :<Table
-                list={result.hits}
-                
-                onDismiss={this.onDismiss}
+                  list={list}
+                  onDismiss={this.onDismiss}
               
               />
               
             }
 
-            <Button onClick={()=>this.fetchSearchTopStories(searchTerm,page +1)}>
+            <Button onClick={()=>this.fetchSearchTopStories(searchKey,page +1)}>
             More
             </Button>
           
@@ -147,28 +206,54 @@ class App extends Component {
 
 }
 
+const Loading=()=>
+<i className="fa fa-clock-o">Fetching Data</i>
 
 
-const Search=({value, onChange,onSubmit, children})=>
+
+class Search extends Component{
+
+  render(){
+    const{value, onChange,onSubmit, children}= this.props
+  
+
+        return(
+                <form  onSubmit={onSubmit}>
+                <input
+                type="text"
+                value={value}
+                onChange={onChange}
+                ref={(node)=>{this.input=node;}}
+                
+                />
+
+                <button type="submit" className="buttonSearch">
+                {children} 
+                </button>
+              </form>
+              );
+  }
+}
+// const Search=({value, onChange,onSubmit, children})=>
  
-      <form  onSubmit={onSubmit}>
-        <input
-        type="text"
-        value={value}
-        onChange={onChange}
-        />
+      // <form  onSubmit={onSubmit}>
+      //   <input
+      //   type="text"
+      //   value={value}
+      //   onChange={onChange}
+      //   />
 
-        <button type="submit">
-        {children} 
-        </button>
-      </form>
+      //   <button type="submit">
+      //   {children} 
+      //   </button>
+      // </form>
 
 
 const Table=({list,onDismiss}) =>
 <div className="table">
     {list.map(item=>
         
-      <div key={item.objectID} className="table-row">
+      <div key={Math.random()}  className="table-row">
       
         
           <span className="largeColumn">
@@ -185,11 +270,11 @@ const Table=({list,onDismiss}) =>
           {item.points}
           </span>
 
-          <span>
+          <span className="deleteButton">
             <Button 
                 onClick={()=>onDismiss(item.objectID)}
                 type="button"
-                className="button-inline"
+                className="buttonDelete"
             >
                   Dismiss
             </Button>
@@ -221,5 +306,9 @@ class Button extends Component{
     );
   }
 }
-
+Button.propTypes = {
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
 export default App;
